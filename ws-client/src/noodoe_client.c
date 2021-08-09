@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <openssl/x509.h>
-#include "ocpp/ocpp_1_6_j/ocpp_1_6_j.h"
+#include "../lib/ocpp/ocpp_1_6_j.h"
 
 #define TEST 0
 /*
