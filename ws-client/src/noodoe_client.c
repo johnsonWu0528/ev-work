@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <openssl/x509.h>
 #include "../lib/ocpp/ocpp_1_6_j.h"
+#include "../lib/ocpp/ocpp_process.h"
 
 #define TEST 0
 /*
@@ -151,6 +152,7 @@ callback_minimal(struct lws *wsi, enum lws_callback_reasons reason,
 	case LWS_CALLBACK_CLIENT_ESTABLISHED:
 
 		lwsl_user("%s: established\n", __func__);
+		//ocpp_test();
 		ocpp_frame mmFrame = ocppMakeCallFrame(CALL, "FW-Tset01", OCPP_BOOT_NOTIFICATION, OCPP_REQ);
 		websocket_write_back(wsi, mmFrame.buf, -1);
 

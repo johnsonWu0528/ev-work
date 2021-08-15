@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "../json/cJSON.h"
+
 #include "ocpp_1_6_j.h"
+
+#include "../json/cJSON.h"
 
 /* private extern for test and implement*/
 
@@ -344,7 +346,9 @@ static void ocppAddMsgType(ocpp_frame *pFrame, ocpp_message_type pType)
 
 static void ocppAddId(ocpp_frame *pFrame, uint8_t* pId)
 {
-  uint8_t mm_buf[64] = {0}, mm_len = sprintf(mm_buf, pId);
+  uint8_t mm_buf[64] = {0};
+
+  int mm_len = sprintf(mm_buf, "%s", pId);
 
   pFrame->buf[pFrame->used_len] = (uint8_t)'\"';
   pFrame->used_len = pFrame->used_len + 1;
@@ -382,7 +386,7 @@ static void ocppAddAction(ocpp_frame *pFrame, ocpp_core_action_list pAction)
 static void ocppAddPayload(ocpp_frame *pFrame, char *pPayload)
 {
   char mm_buf[512] = {0};
-  int mm_len = sprintf(mm_buf, pPayload);
+  int mm_len = sprintf(mm_buf, "%s", pPayload);
 
   if(mm_len < 512)
   {
@@ -650,6 +654,23 @@ ocpp_frame ocppMakeCallFrame(ocpp_message_type pType, uint8_t* pId, ocpp_core_ac
 
   mm_root = cJSON_CreateObject();
 
+  printf("%s 1 \r\n", __func__);
+#if 0
+  ocpp_w_frame mm_ocpp_frame =
+  {
+      .size     = OCPP_CORE_FRAME_SIZE,
+      .used_len = 0,
+      .remain   = OCPP_CORE_FRAME_SIZE,
+  };
+
+  printf("%s 2 \r\n", __func__);
+
+  mm_ocpp_frame.buf = m_frame_buffer;
+
+  memset(mm_ocpp_frame.buf, 0x00, sizeof(m_frame_buffer));
+
+#else
+
   ocpp_frame mm_ocpp_frame =
   {
       .size     = OCPP_CORE_FRAME_SIZE,
@@ -658,14 +679,15 @@ ocpp_frame ocppMakeCallFrame(ocpp_message_type pType, uint8_t* pId, ocpp_core_ac
   };
 
   mm_ocpp_frame.mem = m_frame_buffer;
+
+#endif
   // clear buffer
-  memset(mm_ocpp_frame.buf, 0x00, sizeof(m_frame_buffer));
+  memset(mm_ocpp_frame.mem, 0x00, sizeof(m_frame_buffer));
 
   ocppAddMsgType(&mm_ocpp_frame, pType);
   ocppAddId(&mm_ocpp_frame, pId);
   ocppAddAction(&mm_ocpp_frame, pAction);
   ocppMakeCorePayload(pSelect, pAction, mm_root);
-
   /* improve ???*/
   mm_payload = cJSON_Print(mm_root);
 

@@ -319,7 +319,7 @@ typedef enum{
   OCPP_CHARGING_SCHEDULE_PERIOD_NUMBER_PHASE,
   OCPP_CHARGING_SCHEDULE_PERIOD_MAX
 }ocpp_charging_schedule_priod_list;
-/*
+
 typedef struct{
 
     uint8_t*  buf;
@@ -328,8 +328,8 @@ typedef struct{
 
     const uint8_t size;
 
-}ocpp_frame;
-*/
+}ocpp_w_frame;
+
 typedef struct{
 
     uint8_t* uniqueId;
@@ -372,14 +372,15 @@ typedef struct{
 
     uint8_t  msg_type;
 
+    uint8_t    used_len; // used when write frame
+    int        remain;   // used when write frame
+    const int   size;     // used when write frame
+
     union {
         uint8_t* mem;
         struct
         {
-            uint8_t   used_len;
-            int       remain;
-            const int size;
-            uint8_t*  buf;
+            uint8_t* buf;
         };
         struct
         {
