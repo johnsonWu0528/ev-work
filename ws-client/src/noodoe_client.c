@@ -41,7 +41,7 @@ static const char *server_address = "libwebsockets.org",
 static int interrupted, port = 443, ssl_connection = LCCSCF_USE_SSL;
 static const char *server_address = "ocpp-dev.server.noodoe.com",
 		              *pro = "dumb-increment-protocol",
-                  *server_path = "/HelloNoodoe";
+                  *server_path = "/FW-Tset01";
 #endif
 //"ocpp-dev.server.noodoe.com/HelloNoodoe",
 //"echo.websocket.org",
@@ -143,17 +143,21 @@ callback_minimal(struct lws *wsi, enum lws_callback_reasons reason,
 		break;
 
 	case LWS_CALLBACK_CLIENT_RECEIVE:
-    lwsl_user("%s: LWS_CALLBACK_CLIENT_RECEIVE\n", __func__);
+		lwsl_user("%s: LWS_CALLBACK_CLIENT_RECEIVE\n", __func__);
 		lwsl_hexdump_notice(in, len);
+		on_receive_message(in, len);
 		break;
 
 	case LWS_CALLBACK_CLIENT_ESTABLISHED:
+
 		lwsl_user("%s: established\n", __func__);
-    websocket_write_back(wsi, "[2,\"Hello\",\"Hello\",{}]", -1);
+		ocpp_frame mmFrame = ocppMakeCallFrame(CALL, "FW-Tset01", OCPP_BOOT_NOTIFICATION, OCPP_REQ);
+		websocket_write_back(wsi, mmFrame.buf, -1);
+
 		break;
 
 	case LWS_CALLBACK_CLIENT_WRITEABLE:
-    lwsl_user("%s: down\n", __func__);
+		lwsl_user("%s: down\n", __func__);
     break;
 	case LWS_CALLBACK_CLIENT_CLOSED:
 		goto do_retry;
@@ -206,7 +210,7 @@ int main(int argc, const char **argv)
 	lws_cmdline_option_handle_builtin(argc, argv, &info);
 
 	lwsl_user("LWS minimal ws client\n");
-	ocpp_test();
+	//ocpp_test();
 
 	info.options = LWS_SERVER_OPTION_DO_SSL_GLOBAL_INIT;
 	info.port = CONTEXT_PORT_NO_LISTEN; /* we do not run any server */

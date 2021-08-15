@@ -8,9 +8,10 @@
 #define OCPP_CORE_FRAME_SIZE 1024
 
 typedef enum {
-    CALL = 0,   // Client to Server
-    CALLRESULT, // Server to Client
-    CALLERROR,   // Server to Client
+    CALL = 0,        // Client to Server
+    CALLRESULT,      // Server to Client
+    CALLERROR,       // Server to Client
+    MST_TYPE_INVALID,
     MSG_TYPE_LIST
 }ocpp_message_type;
 
@@ -318,7 +319,7 @@ typedef enum{
   OCPP_CHARGING_SCHEDULE_PERIOD_NUMBER_PHASE,
   OCPP_CHARGING_SCHEDULE_PERIOD_MAX
 }ocpp_charging_schedule_priod_list;
-
+/*
 typedef struct{
 
     uint8_t*  buf;
@@ -328,10 +329,17 @@ typedef struct{
     const uint8_t size;
 
 }ocpp_frame;
+*/
+typedef struct{
+
+    uint8_t* uniqueId;
+    uint8_t* action;
+    uint8_t* payload;
+
+}ocpp_call_frame;
 
 typedef struct{
 
-    uint8_t  msg_type;
     uint8_t* uniqueId;
     uint8_t* payload;
 
@@ -339,10 +347,10 @@ typedef struct{
 
 typedef struct{
 
-    uint8_t  msg_type;
-    uint8_t  err_code;
+    uint8_t* uniqueId;
+    uint8_t* err_code;
     uint8_t* err_desc;
-    uint8_t* err_details;
+    uint8_t* payload;
 
 }ocpp_call_error_frame;
 
@@ -360,5 +368,35 @@ typedef struct{
 
 }ocpp_type;
 
+typedef struct{
+
+    uint8_t  msg_type;
+
+    union {
+        uint8_t* mem;
+        struct
+        {
+            uint8_t   used_len;
+            int       remain;
+            const int size;
+            uint8_t*  buf;
+        };
+        struct
+        {
+            ocpp_call_frame call;
+        };
+        struct
+        {
+            ocpp_call_result_frame callResult;
+        };
+        struct
+        {
+            ocpp_call_error_frame callError;
+        };
+    };
+
+}ocpp_frame;
+
 void ocpp_test(void);
 ocpp_frame ocppMakeCallFrame(ocpp_message_type pType, uint8_t* pId, ocpp_core_action_list pAction, ocpp_select_messages_list pSelect);
+ocpp_frame* ocpp_parse_frame(char* payload, int len);

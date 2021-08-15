@@ -657,7 +657,7 @@ ocpp_frame ocppMakeCallFrame(ocpp_message_type pType, uint8_t* pId, ocpp_core_ac
       .remain   = OCPP_CORE_FRAME_SIZE,
   };
 
-  mm_ocpp_frame.buf = m_frame_buffer;
+  mm_ocpp_frame.mem = m_frame_buffer;
   // clear buffer
   memset(mm_ocpp_frame.buf, 0x00, sizeof(m_frame_buffer));
 
@@ -676,11 +676,24 @@ ocpp_frame ocppMakeCallFrame(ocpp_message_type pType, uint8_t* pId, ocpp_core_ac
   return mm_ocpp_frame;
 }
 
+ocpp_frame* ocpp_parse_frame(char* payload, int len)
+{
+    int mm_len = 0;
+
+    //for(mm_len == 0; mm_len < len ; mm_len++)
+    {
+        if(payload[0] == '[')
+        {
+            printf("%s : (msg id = %c)\n", __func__, payload[1]);
+        }
+    }
+}
+
 void ocpp_test(void)
 {
     printf("ocpp test in\r\n");
 
-    ocpp_frame mmFrame = ocppMakeCallFrame(CALL, "Hello", OCPP_BOOT_NOTIFICATION, OCPP_REQ);
+    ocpp_frame mmFrame = ocppMakeCallFrame(CALL, "FW-Tset01", OCPP_BOOT_NOTIFICATION, OCPP_REQ);
     printf("%s\r\n", mmFrame.buf);
 }
 /*
