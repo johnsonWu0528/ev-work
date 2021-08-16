@@ -102,7 +102,7 @@ connect_client(lws_sorted_usec_list_t *sul)
 		}
 }
 
-static int websocket_write_back(struct lws *wsi_in, char *str, int str_size_in)
+int websocket_write_back(struct lws *wsi_in, char *str, int str_size_in)
 {
     if (str == NULL || wsi_in == NULL)
         return -1;
@@ -129,6 +129,12 @@ static int websocket_write_back(struct lws *wsi_in, char *str, int str_size_in)
     return n;
 }
 
+int noodoe_client_write(char *str, int str_size_in)
+{
+	websocket_write_back(mco.wsi, str, -1);
+}
+
+int test = 0;
 static int
 callback_minimal(struct lws *wsi, enum lws_callback_reasons reason,
 		 void *user, void *in, size_t len)
@@ -144,19 +150,30 @@ callback_minimal(struct lws *wsi, enum lws_callback_reasons reason,
 		break;
 
 	case LWS_CALLBACK_CLIENT_RECEIVE:
+	{
 		lwsl_user("%s: LWS_CALLBACK_CLIENT_RECEIVE\n", __func__);
 		lwsl_hexdump_notice(in, len);
 		on_receive_message(in, len);
-		break;
+#if 0
+		if(test == 1)
+		{
+			ocpp_frame mmFrame = ocppMakeCallFrame(CALL, "FW-Tset01", CP_GET_CONFIGURATION, OCPP_CONF);
+			websocket_write_back(wsi, mmFrame.buf, -1);
+
+		}
+
+		test++;
+#endif
+	}break;
 
 	case LWS_CALLBACK_CLIENT_ESTABLISHED:
-
+	{
 		lwsl_user("%s: established\n", __func__);
 		//ocpp_test();
-		ocpp_frame mmFrame = ocppMakeCallFrame(CALL, "FW-Tset01", OCPP_BOOT_NOTIFICATION, OCPP_REQ);
+		ocpp_frame mmFrame = ocppMakeCallFrame(CALL, "FW-Tset01", CP_BOOT_NOTIFICATION, OCPP_REQ);
 		websocket_write_back(wsi, mmFrame.buf, -1);
 
-		break;
+	}break;
 
 	case LWS_CALLBACK_CLIENT_WRITEABLE:
 		lwsl_user("%s: down\n", __func__);

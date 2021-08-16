@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 #define OCPP_OPTIONAL 0
-#define OCPP_CORE_FRAME_SIZE 1024
+#define OCPP_CORE_FRAME_SIZE 512
 
 typedef enum {
     CALL = 0,        // Client to Server
@@ -26,25 +26,50 @@ typedef struct{
 
 typedef enum{
 
-  OCPP_AUTHORIZE = 0,            // Authorize,
-  OCPP_BOOT_NOTIFICATION,        // BootNotification,
-  OCPP_CAHNGE_ACAILABILITY,      // ChangeAvailability,
-  OCPP_CAHNGE_CONFIGURATION,     // ChangeConfiguration,
-  OCPP_CLEAR_CACHE,              // ClearCache,
-  OCPP_DATA_TRANSFER,            // DataTransfer,
-  OCPP_GET_CONFIGURATION,        // GetConfiguration,
-  OCPP_HEARTBEAT,                // Heartbeat
-  OCPP_METER_VALUES,             // meterVales,
-  OCPP_REMOTE_START_TRANSACTION, // RemoteStartTransaction,
-  OCPP_REMOTE_STOP_TRANSACTION,  // RemoteStopTransaction,
-  OCPP_RESET,                    // Reset,
-  OCPP_START_TRANSACTION,        // StartTransaction,
-  OCPP_STATUS_NOTIFICATION,      // StatusNotification,
-  OCPP_STOP_TRANSACTION,         // StopTransaction,
-  OCPP_UNLOCK_CONNECTION,        // UnlockConnector,
-  OCPP_CORE_ACTION_MAX,          // CoreActionList
+  CP_AUTHORIZE = 0,            // Authorize,
+  CP_BOOT_NOTIFICATION,        // BootNotificationOCPP_CONF
+  CP_CAHNGE_AVAILABILITY,      // ChangeAvailability,
+  CP_CAHNGE_CONFIGURATION,     // ChangeConfiguration,
+  CP_CLEAR_CACHE,              // ClearCache,
+  CP_DATA_TRANSFER,            // DataTransfer,
+  CP_GET_CONFIGURATION,        // GetConfiguration,
+  CP_HEARTBEAT,                // Heartbeat
+  CP_METER_VALUES,             // meterVales,
+  CP_REMOTE_START_TRANSACTION, // RemoteStartTransaction,
+  CP_REMOTE_STOP_TRANSACTION,  // RemoteStopTransaction,
+  CP_RESET,                    // Reset,
+  CP_START_TRANSACTION,        // StartTransaction,
+  CP_STATUS_NOTIFICATION,      // StatusNotification,
+  CP_STOP_TRANSACTION,         // StopTransaction,
+  CP_UNLOCK_CONNECTION,        // UnlockConnector,
+  CP_CORE_ACTION_MAX,          // CoreActionList
 
-}ocpp_core_action_list;
+}ocpp_cp_core_action_list; // charge point
+
+
+typedef enum{
+
+  CS_CANCEL_RESERVATION = 0,   // CancelReservation
+  CS_CAHNGE_AVAILABILITY,      // ChangeAvailability,
+  CS_CAHNGE_CONFIGURATION,     // ChangeConfiguration,
+  CS_CLEAR_CACHE,              // ClearCache,
+  CS_CLEAR_CHARGING_PROFILE,   // ClearChargingProfile,
+  CS_DATA_TRANSFER,            // DataTransfer,
+  CS_GET_COMPOSITE_SCHEDULE,   // GetCompositeSchedule,
+  CS_GET_CONFIGURATION,        // GetConfiguration,
+  CS_GET_DIAGNOSTICS,          // GetDiagnostics,
+  CS_GET_LOCAL_LIST_VERSION ,  // GetLocalListVersion,
+  CS_REMOTE_START_TRANSACTION, // RemoteStartTransaction,
+  CS_REMOTE_STOP_TRANSACTION,  // RemoteStopTransaction,
+  CS_RESET_NOW,                // ResetNow,
+  CS_RESET,                    // Reset,
+  CS_SEND_LOCAL_LIST,          // SendLocalList,
+  CS_SET_CAHRGING_PROFILE,     // SetChargingProfile,
+  CS_TRIGGER_MESSAGE,          // TriggerMessage
+  CS_UNLOCK_CONNECTOR,         // UnlockConnector,
+  CS_CORE_ACTION_MAX,          // CoreActionList
+
+}ocpp_cs_action_list;
 
 typedef enum{
 
@@ -399,5 +424,6 @@ typedef struct{
 }ocpp_frame;
 
 void ocpp_test(void);
-ocpp_frame ocppMakeCallFrame(ocpp_message_type pType, uint8_t* pId, ocpp_core_action_list pAction, ocpp_select_messages_list pSelect);
+//ocpp_frame ocppMakeCallFrame(ocpp_message_type pType, uint8_t* pId, ocpp_cp_core_action_list pAction, ocpp_select_messages_list pSelect);
+void ocppMakeCallFrame(ocpp_frame* pFrame, ocpp_message_type pType, uint8_t* pId, ocpp_cp_core_action_list pAction, ocpp_select_messages_list pSelect);
 ocpp_frame* ocpp_parse_frame(char* payload, int len);
