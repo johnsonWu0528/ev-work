@@ -598,7 +598,9 @@ static void ocppMakeCoreReq(ocpp_cp_core_action_list pAction, cJSON* pJson)
     break;
     case CP_STOP_TRANSACTION:
     {
-
+      //idTag /meterStop / timestamp / transactionId / reason / transactionData
+      cJSON_AddStringToObject(pJson, m_filed_req_name[OCPP_REQ_CONNECTOR_ID].data, t_connectorId);
+      cJSON_AddStringToObject(pJson, m_filed_req_name[OCPP_REQ_ID_TAG].data, t_idTag);
     }
     break;
     default:
@@ -611,20 +613,25 @@ static void ocppMakeCoreConf(ocpp_cp_core_action_list pAction, cJSON* pJson)
   switch(pAction)
   {
     case CP_AUTHORIZE:
+      cJSON_AddStringToObject(pJson, m_filed_conf_name[OCPP_CONF_ID_TAG_INFO].data, t_idTag);
     break;
     case CP_BOOT_NOTIFICATION:
+      // server boot?
     break;
     case CP_CAHNGE_AVAILABILITY:
+      cJSON_AddStringToObject(pJson, m_filed_req_name[OCPP_REQ_KEY].data, t_key);
+      cJSON_AddStringToObject(pJson, m_filed_req_name[OCPP_REQ_VALUE].data, t_value);
     break;
     case CP_CAHNGE_CONFIGURATION:
+      cJSON_AddStringToObject(pJson, m_filed_req_name[OCPP_REQ_VALUE].data, t_value);
     break;
     case CP_CLEAR_CACHE:
     break;
     case CP_DATA_TRANSFER:
     break;
     case CP_GET_CONFIGURATION:
-      printf("%s in \n", __func__);
       cJSON_AddStringToObject(pJson, m_filed_conf_name[OCPP_CONF_CONFIGURATION_KEY].data, t_key);
+      cJSON_AddStringToObject(pJson, m_filed_conf_name[OCPP_CONF_UNKNOWN_KEY].data, t_key);
     break;
     case CP_HEARTBEAT:
     break;
@@ -637,12 +644,35 @@ static void ocppMakeCoreConf(ocpp_cp_core_action_list pAction, cJSON* pJson)
     case CP_RESET:
     break;
     case CP_START_TRANSACTION:
+      //idTagInfo, transactionId
+      cJSON_AddStringToObject(pJson, m_filed_conf_name[OCPP_CONF_ID_TAG_INFO].data, t_idTag);
+      cJSON_AddStringToObject(pJson, m_filed_conf_name[OCPP_CONF_TRANSACTION_ID].data, t_transactionId);
     break;
     case CP_STATUS_NOTIFICATION:
     break;
     case CP_UNLOCK_CONNECTION:
     break;
     case CP_STOP_TRANSACTION:
+      //idTagInfo
+      cJSON_AddStringToObject(pJson, m_filed_conf_name[OCPP_CONF_ID_TAG_INFO].data, t_idTag);
+    break;
+    case CP_CANCEL_RESERVATION:
+    break;
+    case CP_GET_COMPOSITE_SCHEDULE:
+    break;
+    case CP_GET_DIAGNOSTICS:
+    break;
+    case CP_GET_LOCAL_LIST_VERSION:
+    break;
+    case CP_RESET_NOW:
+    break;
+    case CP_SEND_LOCAL_LIST:
+    break;
+    case CP_SET_CAHRGING_PROFILE:
+    break;
+    case CP_TRIGGER_MESSAGE:
+    break;
+    case CP_UNLOCK_CONNECTOR:
     break;
     default:
     break;
@@ -655,41 +685,6 @@ static void ocppMakeCorePayload(ocpp_select_messages_list pSelect, ocpp_cp_core_
     else if (pSelect == OCPP_CONF) ocppMakeCoreConf(pAction, pJson);
     else{ /* unkown select */ }
 }
-#if 0
-ocpp_frame ocppMakeCallFrame(ocpp_message_type pType, uint8_t* pId, ocpp_cp_core_action_list pAction, ocpp_select_messages_list pSelect)
-{
-  char*  mm_payload;
-  cJSON  mm_json;
-  cJSON* mm_root = &mm_json;
-
-  mm_root = cJSON_CreateObject();
-
-  ocpp_frame mm_ocpp_frame =
-  {
-      .size     = OCPP_CORE_FRAME_SIZE,
-      .used_len = 0,
-      .remain   = OCPP_CORE_FRAME_SIZE,
-  };
-
-  mm_ocpp_frame.mem = m_frame_buffer;
-
-  // clear buffer
-  memset(mm_ocpp_frame.mem, 0x00, sizeof(m_frame_buffer));
-
-  ocppAddMsgType(&mm_ocpp_frame, pType);
-  ocppAddId(&mm_ocpp_frame, pId);
-  ocppAddAction(&mm_ocpp_frame, pAction);
-  ocppMakeCorePayload(pSelect, pAction, mm_root);
-  /* improve ???*/
-  mm_payload = cJSON_Print(mm_root);
-
-  ocppAddPayload(&mm_ocpp_frame, mm_payload);
-
-  cJSON_Delete(mm_root);
-
-  return mm_ocpp_frame;
-}
-#else
 
 void ocppMakeCallFrame(ocpp_frame* pFrame, ocpp_message_type pType, uint8_t* pId, ocpp_cp_core_action_list pAction, ocpp_select_messages_list pSelect)
 {
@@ -699,8 +694,6 @@ void ocppMakeCallFrame(ocpp_frame* pFrame, ocpp_message_type pType, uint8_t* pId
 
   mm_root = cJSON_CreateObject();
 
-  // clear buffer
-
   ocppAddMsgType(pFrame, pType);
   ocppAddId(pFrame, pId);
   ocppAddAction(pFrame, pAction);
@@ -709,27 +702,9 @@ void ocppMakeCallFrame(ocpp_frame* pFrame, ocpp_message_type pType, uint8_t* pId
   /* improve ???*/
   mm_payload = cJSON_Print(mm_root);
 
- // ocppAddPayload(&mm_ocpp_frame, mm_payload);
-
   ocppAddPayload(pFrame, mm_payload);
 
-  printf("%s end, %s\r\n", __func__, pFrame->buf);
-
   cJSON_Delete(mm_root);
-}
-
-#endif
-ocpp_frame* ocpp_parse_frame(char* payload, int len)
-{
-    int mm_len = 0;
-
-    //for(mm_len == 0; mm_len < len ; mm_len++)
-    {
-        if(payload[0] == '[')
-        {
-            printf("%s : (msg id = %c)\n", __func__, payload[1]);
-        }
-    }
 }
 
 void ocpp_test(void)

@@ -42,6 +42,15 @@ typedef enum{
   CP_STATUS_NOTIFICATION,      // StatusNotification,
   CP_STOP_TRANSACTION,         // StopTransaction,
   CP_UNLOCK_CONNECTION,        // UnlockConnector,
+  CP_CANCEL_RESERVATION,       // CancelReservation,
+  CP_GET_COMPOSITE_SCHEDULE,   // GetCompositeSchedule,
+  CP_GET_DIAGNOSTICS,          // GetDiagnostics,
+  CP_GET_LOCAL_LIST_VERSION,   // GetLocalListVersion,
+  CP_RESET_NOW,                // ResetNow,
+  CP_SEND_LOCAL_LIST,          // SendLocalList,
+  CP_SET_CAHRGING_PROFILE,     // SetChargingProfile,
+  CP_TRIGGER_MESSAGE,          // TriggerMessage
+  CP_UNLOCK_CONNECTOR,         // UnlockConnector,
   CP_CORE_ACTION_MAX,          // CoreActionList
 
 }ocpp_cp_core_action_list; // charge point

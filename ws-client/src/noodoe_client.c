@@ -27,6 +27,9 @@
  * the client connection bound to it
  */
 
+static char mWriteMem[OCPP_CORE_FRAME_SIZE] = {0};
+static char mReadMem[OCPP_CORE_FRAME_SIZE] = {0};
+
 static struct my_conn {
 	lws_sorted_usec_list_t	sul;	     /* schedule connection retry */
 	struct lws		*wsi;	     /* related wsi if any */
@@ -154,24 +157,27 @@ callback_minimal(struct lws *wsi, enum lws_callback_reasons reason,
 		lwsl_user("%s: LWS_CALLBACK_CLIENT_RECEIVE\n", __func__);
 		lwsl_hexdump_notice(in, len);
 		on_receive_message(in, len);
-#if 0
-		if(test == 1)
-		{
-			ocpp_frame mmFrame = ocppMakeCallFrame(CALL, "FW-Tset01", CP_GET_CONFIGURATION, OCPP_CONF);
-			websocket_write_back(wsi, mmFrame.buf, -1);
 
-		}
-
-		test++;
-#endif
 	}break;
 
 	case LWS_CALLBACK_CLIENT_ESTABLISHED:
 	{
 		lwsl_user("%s: established\n", __func__);
 		//ocpp_test();
-		ocpp_frame mmFrame = ocppMakeCallFrame(CALL, "FW-Tset01", CP_BOOT_NOTIFICATION, OCPP_REQ);
-		websocket_write_back(wsi, mmFrame.buf, -1);
+
+		memset(mWriteMem, 0x00, OCPP_CORE_FRAME_SIZE);
+
+		ocpp_frame mm_ocpp_frame =
+		{
+			.size     = 512,
+			.used_len = 0,
+			.remain   = 512,
+		};
+
+		mm_ocpp_frame.mem = mWriteMem;
+
+		ocppMakeCallFrame(&mm_ocpp_frame, CALL, "FW-Tset01", CP_BOOT_NOTIFICATION, OCPP_REQ);
+		websocket_write_back(wsi, mm_ocpp_frame.buf, -1);
 
 	}break;
 
