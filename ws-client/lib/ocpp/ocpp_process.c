@@ -54,6 +54,8 @@ static const ocpp_string m_core_action[CS_CORE_ACTION_MAX] =
 static char mWriteMem[OCPP_CORE_FRAME_SIZE] = {0};
 static char mReadMem[OCPP_CORE_FRAME_SIZE] = {0};
 
+static uint8_t testGetConfiguration = 0;
+
 ocpp_frame mReadFrame =
 {
 	.size     = OCPP_CORE_FRAME_SIZE,
@@ -569,7 +571,66 @@ void dispatch_call(uint8_t* pAction, uint8_t* pPayload)
 
 void dispatch_callResult(uint8_t* pPayload)
 {
+	cJSON *root = cJSON_Parse(pPayload);
 
+	if(!root)
+	{
+		printf("get root faild !\n");
+		return;
+	}
+
+	cJSON *mmCurTime = cJSON_GetObjectItem(root, "currentTime");
+
+	if(!mmCurTime)
+	{
+		printf("No current time !\n");
+	}
+	else
+	{
+		printf("currentTime type is %d\n",mmCurTime->type);
+		printf("currentTime is %s\n",mmCurTime->valuestring);
+	}
+
+	cJSON *mmInterval = cJSON_GetObjectItem(root, "interval");
+
+	if(!mmInterval)
+	{
+		printf("no interval!\n");
+	}
+	else
+	{
+		printf("interval type is %d\n", mmInterval->type);
+		printf("interval is %d\n",mmInterval->valueint);
+	}
+
+	cJSON *mmStatus = cJSON_GetObjectItem(root, "status");
+
+	if(!mmStatus)
+	{
+		printf("No status !\n");
+	}
+	else
+	{
+		printf("status type is %d\n",mmStatus->type);
+		printf("status is %s\n",mmStatus->valuestring);
+	}
+
+/*
+	cJSON *mmTransactionId = cJSON_GetObjectItem(root, "transactionId");
+
+	if(!mmTransactionId)
+	{
+		printf("No transactionId !\n");
+	}
+	else
+	{
+		printf("name type is %d\n",mmTransactionId->type);
+		printf("name is %s\n",mmTransactionId->valuestring);
+
+		char*  mm_T_ID = cJSON_Print(mmTransactionId->valuestring);
+		ocppSetTransactionId(mm_T_ID);
+	}
+*/
 }
 
 void dispatch_callErr(uint8_t* pPayload)
@@ -618,6 +679,11 @@ int on_open(void* in, int len)
 	printf("%s\n",__func__);
 }
 
+int on_connect(void* in, int len)
+{
+	printf("%s\n",__func__);
+}
+
 char testInBuf[512] = {0};
 int on_receive_message(void* in, int len)
 {
@@ -639,17 +705,17 @@ int on_send(void* in, int len)
 }
 
 #define TEST 0
+#if TEST
 
-/*
-char * test = "[2,\"396e5858-4dd5-4013-a9c1-634713769e39\",\"GetConfiguration\",{\"key\":[]}]";
-//char * test = "[3,\"FW-Tset01\",{\"currentTime\":\"2021-08-11T10:02:07.310Z\",\"interval\":300,\"status\":\"Accepted\"}]";
+//char * test = "[2,\"396e5858-4dd5-4013-a9c1-634713769e39\",\"GetConfiguration\",{\"key\":[]}]";
+char * test = "[3,\"FW-Tset01\",{\"currentTime\":\"2021-08-11T10:02:07.310Z\",\"interval\":300,\"status\":\"Accepted\"}]";
 
 int main(int argc, const char **argv)
 {
-
+	/*
   printf("%s in \n", __func__);
 
-//    ocpp_test();
+  //ocpp_test();
 
 	printf("%s start make call frame\n", __func__);
 
@@ -667,8 +733,8 @@ int main(int argc, const char **argv)
 	ocppMakeCallFrame(&mmFrame1, 0, "FW-Tset01", CP_GET_CONFIGURATION, OCPP_CONF);
 	//ocpp_frame mmFrame = ocppMakeCallFrame(CALL, "FW-Tset01", CP_BOOT_NOTIFICATION, OCPP_REQ);
 	printf("%s: %s\n", __func__, mmFrame1.buf);
-
+  */
     //on_receive_message((void*)test, 72);
-    //on_receive_message((void*)test, 93);
+  on_receive_message((void*)test, 93);
 }
-*/
+#endif

@@ -56,14 +56,14 @@ static const char *server_address = "ocpp-dev.server.noodoe.com",
 static const uint32_t backoff_ms[] = { 1000, 2000, 3000, 4000, 5000 };
 
 static const lws_retry_bo_t retry = {
-	.retry_ms_table			= backoff_ms,
-	.retry_ms_table_count		= LWS_ARRAY_SIZE(backoff_ms),
-	.conceal_count			= LWS_ARRAY_SIZE(backoff_ms),
+	.retry_ms_table			 = backoff_ms,
+	.retry_ms_table_count	 = LWS_ARRAY_SIZE(backoff_ms),
+	.conceal_count			 = LWS_ARRAY_SIZE(backoff_ms),
 
-	.secs_since_valid_ping		= 3,  /* force PINGs after secs idle */
-	.secs_since_valid_hangup	= 10, /* hangup after secs idle */
+	.secs_since_valid_ping	 = 3,  /* force PINGs after secs idle */
+	.secs_since_valid_hangup = 10, /* hangup after secs idle */
 
-	.jitter_percent			= 20,
+	.jitter_percent			 = 20,
 };
 
 /*
@@ -164,25 +164,93 @@ callback_minimal(struct lws *wsi, enum lws_callback_reasons reason,
 	{
 		lwsl_user("%s: established\n", __func__);
 		//ocpp_test();
-
-		memset(mWriteMem, 0x00, OCPP_CORE_FRAME_SIZE);
-
-		ocpp_frame mm_ocpp_frame =
+		if(test == 0)
 		{
-			.size     = 512,
-			.used_len = 0,
-			.remain   = 512,
-		};
+			memset(mWriteMem, 0x00, OCPP_CORE_FRAME_SIZE);
 
-		mm_ocpp_frame.mem = mWriteMem;
+			ocpp_frame mm_ocpp_frame =
+			{
+				.size     = 512,
+				.used_len = 0,
+				.remain   = 512,
+			};
 
-		ocppMakeCallFrame(&mm_ocpp_frame, CALL, "FW-Tset01", CP_BOOT_NOTIFICATION, OCPP_REQ);
-		websocket_write_back(wsi, mm_ocpp_frame.buf, -1);
+			mm_ocpp_frame.mem = mWriteMem;
 
+			ocppMakeCallFrame(&mm_ocpp_frame, CALL, "FW-Tset01", CP_BOOT_NOTIFICATION, OCPP_REQ);
+			websocket_write_back(wsi, mm_ocpp_frame.buf, -1);
+		}
 	}break;
 
 	case LWS_CALLBACK_CLIENT_WRITEABLE:
-		lwsl_user("%s: down\n", __func__);
+		lwsl_user("%s: down (%d)\n", __func__, test);
+		if(test == 3)
+		{
+			memset(mWriteMem, 0x00, OCPP_CORE_FRAME_SIZE);
+
+			ocpp_frame mm_ocpp_frame =
+			{
+				.size     = 512,
+				.used_len = 0,
+				.remain   = 512,
+			};
+
+			mm_ocpp_frame.mem = mWriteMem;
+
+			ocppMakeCallFrame(&mm_ocpp_frame, CALL, "FW-Tset01", CP_AUTHORIZE, OCPP_REQ);
+			websocket_write_back(wsi, mm_ocpp_frame.buf, -1);
+		}
+		else if(test == 9)
+		{
+			memset(mWriteMem, 0x00, OCPP_CORE_FRAME_SIZE);
+
+			ocpp_frame mm_ocpp_frame =
+			{
+				.size     = 512,
+				.used_len = 0,
+				.remain   = 512,
+			};
+
+			mm_ocpp_frame.mem = mWriteMem;
+
+			ocppMakeCallFrame(&mm_ocpp_frame, CALL, "FW-Tset01", CP_START_TRANSACTION, OCPP_REQ);
+			websocket_write_back(wsi, mm_ocpp_frame.buf, -1);
+		}
+		else if(test == 15)
+		{
+			memset(mWriteMem, 0x00, OCPP_CORE_FRAME_SIZE);
+
+			ocpp_frame mm_ocpp_frame =
+			{
+				.size     = 512,
+				.used_len = 0,
+				.remain   = 512,
+			};
+
+			mm_ocpp_frame.mem = mWriteMem;
+
+			ocppMakeCallFrame(&mm_ocpp_frame, CALL, "FW-Tset01", CP_AUTHORIZE, OCPP_REQ);
+			websocket_write_back(wsi, mm_ocpp_frame.buf, -1);
+		}
+		else if(test == 21)
+		{
+			memset(mWriteMem, 0x00, OCPP_CORE_FRAME_SIZE);
+
+			ocpp_frame mm_ocpp_frame =
+			{
+				.size     = 512,
+				.used_len = 0,
+				.remain   = 512,
+			};
+
+			mm_ocpp_frame.mem = mWriteMem;
+
+			ocppMakeCallFrame(&mm_ocpp_frame, CALL, "FW-Tset01", CP_STOP_TRANSACTION, OCPP_REQ);
+			websocket_write_back(wsi, mm_ocpp_frame.buf, -1);
+		}
+
+		test++;
+
     break;
 	case LWS_CALLBACK_CLIENT_CLOSED:
 		goto do_retry;

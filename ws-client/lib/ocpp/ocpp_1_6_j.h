@@ -89,7 +89,7 @@ typedef enum{
 
 typedef enum{
 
-  OCPP_REQ_ID_TAG = 0,                     // idTag
+  OCPP_REQ_ID_TAG = 0,                 // idTag
   OCPP_REQ_CHARGE_BOX_SERIAL_NUMBER,   // chargeBoxSerialNumber
   OCPP_REQ_CHARGE_POINT_MODEL,         // chargePointModel
   OCPP_REQ_CHARGE_POINT_SERIAL_NUMBER, // chargePointSerialNumber
@@ -436,3 +436,4 @@ void ocpp_test(void);
 //ocpp_frame ocppMakeCallFrame(ocpp_message_type pType, uint8_t* pId, ocpp_cp_core_action_list pAction, ocpp_select_messages_list pSelect);
 void ocppMakeCallFrame(ocpp_frame* pFrame, ocpp_message_type pType, uint8_t* pId, ocpp_cp_core_action_list pAction, ocpp_select_messages_list pSelect);
 ocpp_frame* ocpp_parse_frame(char* payload, int len);
+void ocppSetTransactionId(char* pId);

@@ -5,6 +5,8 @@
 
 #include "../json/cJSON.h"
 
+char t_transactionId[2]           = "7";
+
 /* private extern for test and implement*/
 
 static const char t_chargeBoxSerialNumber[]   = "1";
@@ -20,18 +22,19 @@ static const char t_connectorId[]             = "1";
 static const char t_type[]                    = "1";
 static const char t_key[]                     = "1";
 static const char t_value[]                   = "value";
-static const char t_info[]                    = "1";
+static const char t_info[]                    = "4";
 static const char t_vendorID[]                = "Noodoe_FW";
 static const char t_vendor_error_code[]       = "no_error";
 static const char t_messageID[]               = "messageID";
 static const char t_data[]                    = "data";
-static const char t_transactionId[]           = "transactionId";
 static const char t_timestamp[]               = "timestamp";
-static const char t_idTag[]                   = "idTag";
-static const char t_meterStart[]              = "meterStart";
-static const char t_reservationId[]           = "reservationId";
+static const char t_idTag[]                   = "@NOODOE_FW_TEST_01";
+static const char t_meterStart[]              = "1733930";
+static const char t_meterStop[]               = "1734930";
+static const char t_reservationId[]           = "-1";
 static const char t_profile_id[]              = "profile_id";
-static const char t_stack_level[]              = "1";
+static const char t_stack_level[]             = "1";
+static const char t_reason[]                  = "Other";
 
 static const ocpp_string m_core_action[CP_CORE_ACTION_MAX] =
 {
@@ -324,10 +327,27 @@ static const ocpp_type m_msg_type[MSG_TYPE_LIST] =
 static uint8_t m_frame_buffer[OCPP_CORE_FRAME_SIZE] = {0};
 static uint8_t m_test_buffer[OCPP_CORE_FRAME_SIZE] = {0};
 
+void ocppSetTransactionId(char* pId)
+{
+  memcpy(t_transactionId, pId, 2);
+  printf("%s : id(%s)", __func__, pId);
+}
+
 static void getRfidUid(uint8_t *pUid)
 {
   uint8_t mm_test_id[4] = {0xAA, 0xBB, 0xCC, 0xDD};
   memcpy(pUid, mm_test_id, 4);
+}
+
+void getTime(char* pTime, int pLen)
+{
+    FILE *mmFile;
+
+    mmFile = popen("date \'+%F %T.000\' ","r");
+
+    fgets(pTime, pLen, mmFile);
+
+    pclose(mmFile);
 }
 
 static void ocppAddMsgType(ocpp_frame *pFrame, ocpp_message_type pType)
@@ -447,7 +467,7 @@ static void ocppMakeCoreReq(ocpp_cp_core_action_list pAction, cJSON* pJson)
 
       getRfidUid(mm_id);
 
-      cJSON_AddStringToObject(pJson, m_filed_req_name[OCPP_REQ_ID_TAG].data, (char const*)mm_id);
+      cJSON_AddStringToObject(pJson, m_filed_req_name[OCPP_REQ_ID_TAG].data, t_idTag);
     }
     break;
     case CP_BOOT_NOTIFICATION:
@@ -569,10 +589,16 @@ static void ocppMakeCoreReq(ocpp_cp_core_action_list pAction, cJSON* pJson)
     case CP_START_TRANSACTION:
     {
       /*
-      * FILED LIST : connectorId / idTag / chargingProfile
+      * FILED LIST : connectorId / idTag / meterStart / reservationId /timestamp
       */
+      char mmTime[23] = {0};
+      getTime(mmTime, 24);
+
       cJSON_AddStringToObject(pJson, m_filed_req_name[OCPP_REQ_CONNECTOR_ID].data, t_connectorId);
       cJSON_AddStringToObject(pJson, m_filed_req_name[OCPP_REQ_ID_TAG].data, t_idTag);
+      cJSON_AddStringToObject(pJson, m_filed_req_name[OCPP_REQ_METER_START].data, t_meterStart);
+      cJSON_AddStringToObject(pJson, m_filed_req_name[OCPP_REQ_RESERVATION_ID].data, t_reservationId);
+      cJSON_AddStringToObject(pJson, m_filed_req_name[OCPP_REQ_TIMESTAMP].data, mmTime);
 
     }
     break;
@@ -598,9 +624,16 @@ static void ocppMakeCoreReq(ocpp_cp_core_action_list pAction, cJSON* pJson)
     break;
     case CP_STOP_TRANSACTION:
     {
-      //idTag /meterStop / timestamp / transactionId / reason / transactionData
-      cJSON_AddStringToObject(pJson, m_filed_req_name[OCPP_REQ_CONNECTOR_ID].data, t_connectorId);
+      //idTag /meterStop / timestamp / transactionId / reason / transactionData(option)
+      char mmTime[23] = {0};
+      getTime(mmTime, 24);
+
       cJSON_AddStringToObject(pJson, m_filed_req_name[OCPP_REQ_ID_TAG].data, t_idTag);
+      cJSON_AddStringToObject(pJson, m_filed_req_name[OCPP_REQ_METER_STOP].data, t_meterStop);
+      cJSON_AddStringToObject(pJson, m_filed_req_name[OCPP_REQ_TIMESTAMP].data, mmTime);
+      cJSON_AddStringToObject(pJson, m_filed_req_name[OCPP_REQ_TRANSACTION_ID].data, t_transactionId);
+      cJSON_AddStringToObject(pJson, m_filed_req_name[OCPP_REQ_REASON].data, t_reason);
+
     }
     break;
     default:

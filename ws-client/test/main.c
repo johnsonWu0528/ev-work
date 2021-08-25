@@ -396,6 +396,54 @@ int parse_frame(ocpp_frame* pFrame, char* pSrc, int pLen)
 	return mm_msg_ret;
 }
 
+//char * test = "[3,\"FW-Tset01\",{\"currentTime\":\"2021-08-11T10:02:07.310Z\",\"interval\":300,\"status\":\"Accepted\"}]";
+
+void dispatch_callResult(uint8_t* pPayload)
+{
+	cJSON *root = cJSON_Parse(pPayload);
+
+	if(!root)
+	{
+		printf("get root faild !\n");
+		return;
+	}
+
+	cJSON *mmCurTime = cJSON_GetObjectItem(root, "currentTime");
+
+	if(!mmCurTime)
+	{
+		printf("No current time !\n");
+		return;
+	}
+
+	printf("name type is %d\n",mmCurTime->type);
+	printf("name is %s\n",mmCurTime->valuestring);
+
+	cJSON *mmInterval = cJSON_GetObjectItem(root, "interval");
+
+	if(!mmInterval)
+	{
+		printf("no interval!\n");
+		return;
+	}
+
+	printf("age type is %d\n", mmInterval->type);
+	printf("age is %d\n",mmInterval->valueint);
+
+	cJSON *mmStatue = cJSON_GetObjectItem(root, "status");
+
+	if(!mmStatue)
+	{
+		printf("No status !\n");
+		return;
+	}
+
+	printf("name type is %d\n",mmStatue->type);
+	printf("name is %s\n",mmStatue->valuestring);
+
+}
+
+
 #define TEST_CALL 0
 #define TEST_CALLRESULT 1
 #define TEST_CALLERROR 0
@@ -449,7 +497,8 @@ int main(int argc, char const *argv[])
 
 #if TEST_CALLRESULT
 	printf("%s : %c, %s\n", __func__, mm_ocpp_frame.msg_type, mm_ocpp_frame.callResult.uniqueId);
-	printf("%s : %s\n", __func__, mm_ocpp_frame.callResult.payload);
+	printf("%s : %s\n\n", __func__, mm_ocpp_frame.callResult.payload);
+	dispatch_callResult(mm_ocpp_frame.callResult.payload);
 #endif
 
 #if TEST_CALLERROR
