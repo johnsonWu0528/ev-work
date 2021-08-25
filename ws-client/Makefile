@@ -37,7 +37,7 @@ main :
 	@$(CC) -o ${APP_EXE} ${APP_SRC} ${OCPP_VER_1.6_OBJ} ${OCPP_PROCESS_OBJ} ${cJSON_OBJ} ${LIBS}
 	@echo 'build success'
 
-	@#$(CC) -c ${OCPP_VER_1.6_SRC} -o ${OCPP_VER_1.6_OBJ}
+	@##$(CC) -c ${OCPP_VER_1.6_SRC} -o ${OCPP_VER_1.6_OBJ}
 	@#$(CC) -c ${cJSON_SRC} -o ${cJSON_OBJ}
 	@#$(CC) -o ${APP_EXE} ${APP_SRC} ${OCPP_VER_1.6_OBJ} ${cJSON_OBJ}
 
